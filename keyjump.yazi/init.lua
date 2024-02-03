@@ -50,6 +50,7 @@ T_doubleKey = {
 B_isJumpMode = false
 B_isDoubleKey = false
 
+-- util function
 local function getFilePosition(file)
 	for i, f in ipairs(Folder:by_kind(Folder.CURRENT).window) do
 		if f == file then
@@ -59,6 +60,24 @@ local function getFilePosition(file)
     return 0
 end
 
+local function getCurrenAreaItemNum()
+	return #(Folder:by_kind(Folder.CURRENT).window)
+end
+
+local function getCursorPosition()
+    return Folder:by_kind(Folder.CURRENT).cursor - Folder:by_kind(Folder.CURRENT).offset
+end
+
+local function setKeyMode()
+	local i_item_num = getCurrenAreaItemNum()
+	if i_item_num > 26 then
+		B_isDoubleKey = true
+	else
+		B_isDoubleKey = false
+	end
+end
+
+-- overwirte system function
 if Folder then
 	function Folder:icon(file)
 		if B_isJumpMode then
@@ -94,23 +113,6 @@ if Status then
 			ui.Span(THEME.status.separator_open):fg(style.bg),
 			ui.Span(" " .. mode .. " "):style(style),
 		}
-	end
-end
-
-local function getCurrenAreaItemNum()
-	return #(Folder:by_kind(Folder.CURRENT).window)
-end
-
-local function getCursorPosition()
-    return Folder:by_kind(Folder.CURRENT).cursor - Folder:by_kind(Folder.CURRENT).offset
-end
-
-local function setKeyMode()
-	local i_item_num = getCurrenAreaItemNum()
-	if i_item_num > 26 then
-		B_isDoubleKey = true
-	else
-		B_isDoubleKey = false
 	end
 end
 

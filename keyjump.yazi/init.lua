@@ -48,6 +48,7 @@ local t_doubleKey = {
 
 local b_isJumpMode = false
 local b_isDoubleKey = false
+local i_item_num = 0
 
 -- util function
 local function getFilePosition(file)
@@ -68,7 +69,7 @@ local function getCursorPosition()
 end
 
 local function setKeyMode()
-	local i_item_num = getCurrenAreaItemNum()
+	i_item_num = getCurrenAreaItemNum()
 	if i_item_num > 26 then
 		b_isDoubleKey = true
 	else
@@ -118,17 +119,17 @@ end
 function M:entry()
 
 	if args[1] ~= nil then
-		if args[1] == "init" then
+		if args[1] == "sync-init" then --sync context
     		b_isJumpMode = true
     		setKeyMode()
 			ya.render()
-			ya.manager_emit("plugin", { "keyjump", args = tostring("getinput").." "..tostring(b_isDoubleKey) })
-		elseif args[1] == "getinput" then
+			ya.manager_emit("plugin", { "keyjump", args = tostring("async-getinput").." "..tostring(b_isDoubleKey).." "..tostring(i_item_num) })
+		elseif args[1] == "async-getinput" then --async context
 			local target_candy
 			if args[2] == "false" then
-				target_candy = t_signalKey_candy
+				target_candy = {table.unpack(t_signalKey_candy, 1, args[3])}
 			else
-				target_candy = t_doubleKey_candy
+				target_candy = {table.unpack(t_doubleKey_candy, 1, args[3])}
 			end
 			local key = ya.which {
 				cands = target_candy,
@@ -136,16 +137,21 @@ function M:entry()
 			}
 			if key ~= nil then
 				ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring(key) })
-			end			
-		else
+			else
+				ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring("sync-nilkey") })
+			end	
+		elseif args[1] == "sync-nilkey" then --sync context
+			b_isJumpMode = false
+			ya.render()			
+		else --sync context
 			local cursor_position = getCursorPosition()
 			b_isJumpMode = false
 			ya.render()
 			ya.manager_emit("arrow", { "-"..tostring(cursor_position) })
 			ya.manager_emit("arrow", { args[1] })
 		end
-	else
-		ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring("init") })
+	else --async context
+		ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring("sync-init") })
 	end
 end
 

@@ -134,7 +134,7 @@ function M:entry()
 			silent = true, 
 		}
 		if key ~= nil then
-			ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring(key) })
+			ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring(key - 1) })
 		else
 			ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring("sync-nilkey") })
 		end	

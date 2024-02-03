@@ -85,9 +85,9 @@ if Folder then
 			if position == 0 then
 				return ui.Span(" " .. file:icon().text .. " ")
 			elseif B_isDoubleKey then
-				return ui.Span(T_doubleKey[position] .. " " .. file:icon().text .. " ")
+				return ui.Span(" " .. file:icon().text .. " "..T_doubleKey[position].. " ")
 			else
-				return ui.Span(T_signalKey[position] .. " " .. file:icon().text .. " ")
+				return ui.Span(" " .. file:icon().text .. " "..T_signalKey[position].. " ")
 			end
 		else
 			return ui.Span(" " .. file:icon().text .. " ")

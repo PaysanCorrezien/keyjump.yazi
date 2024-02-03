@@ -145,8 +145,7 @@ function M:entry()
 		local cursor_position = getCursorPosition()
 		b_isJumpMode = false
 		ya.render()
-		ya.manager_emit("arrow", { "-"..tostring(cursor_position) })
-		ya.manager_emit("arrow", { args[1] })
+		ya.manager_emit("arrow", {tostring(tonumber(args[1]) - cursor_position ) })
 	end
 end
 

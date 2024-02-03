@@ -16,51 +16,7 @@ T_doubleKey = {
     "ru", "ri", "ro", "rh", "rj", "rk", "rl", "rn",
     "cu", "ci", "co", "ch", "cj", "ck", "cl", "cn",
     "wu", "wi", "wo", "wh", "wj", "wk", "wl", "wn",
-    -- "tu", "ti", "to", "th", "tj", "tk", "tl", "tn",
-    -- "vu", "vi", "vo", "vh", "vj", "vk", "vl", "vn",
-    -- "xu", "xi", "xo", "xh", "xj", "xk", "xl", "xn",
-    -- "zu", "zi", "zo", "zh", "zj", "zk", "zl", "zn",
-    -- "bu", "bi", "bo", "bh", "bj", "bk", "bl", "bn",
-    -- "qu", "qi", "qo", "qh", "qj", "qk", "ql", "qn",
-	-- "ap","ay", "am",
-	-- "fp","fy", "fm",
-	-- "ep","ey", "em",
-	-- "sp","sy", "sm",
-	-- "dp","dy", "dm",
-	-- "gp","gy", "gm",
-	-- "rp","ry", "rm",
-	-- "cp","cy", "cm",
-	-- "wp","wy", "wm",
-	-- "xp","xy", "xm",
-	-- "tp","ty", "tm",
-	-- "vp","vy", "vm",
-	-- "bp","by", "bm",
-	-- "zp","zy", "zm",
-	-- "qp","qy", "qm",
 }
-
-
-
-
--- local function getCurrenAreaItemNum()
--- 	return #(Folder:by_kind(Folder.CURRENT).window)
--- end
-
--- local function setKeyMode()
--- 	local num = getCurrenAreaItemNum()
--- 	if num > 26 then
--- 		B_isDoubleKey = true
--- 	else
--- 		B_isDoubleKey = false
--- 	end
--- end
-
--- local function getItemIcon(pos)
--- 	local t_item_area = Folder:by_kind(Folder.CURRENT).window
--- 	local t_target_file = t_item_area[pos]
--- 	local s_icon = t_target_file:icon()
--- 	return s_icon
--- end
 
 local function getFilePosition(file)
 	for i, f in ipairs(Folder:by_kind(Folder.CURRENT).window) do
@@ -104,32 +60,3 @@ function Status:mode()
 		ui.Span(" " .. mode .. " "):style(style),
 	}
 end
-
--- function Manager:render(area)
--- 	if B_isJumpMode then
--- 		setKeyMode() -- calculate item num of current area to decide the key mode
--- 	end
-	
--- 	self.area = area
--- 	local chunks = ui.Layout()
--- 		:direction(ui.Layout.HORIZONTAL)
--- 		:constraints({
--- 			ui.Constraint.Ratio(MANAGER.ratio.parent, MANAGER.ratio.all),
--- 			ui.Constraint.Ratio(MANAGER.ratio.current, MANAGER.ratio.all),
--- 			ui.Constraint.Ratio(MANAGER.ratio.preview, MANAGER.ratio.all),
--- 		})
--- 		:split(area)
-
--- 	return ya.flat {
--- 		-- Borders
--- 		ui.Bar(chunks[1], ui.Bar.RIGHT):symbol(THEME.manager.border_symbol):style(THEME.manager.border_style),
--- 		ui.Bar(chunks[3], ui.Bar.LEFT):symbol(THEME.manager.border_symbol):style(THEME.manager.border_style),
-
--- 		-- Parent
--- 		Parent:render(chunks[1]:padding(ui.Padding.x(1))),
--- 		-- Current
--- 		Current:render(chunks[2]),
--- 		-- Preview
--- 		Preview:render(chunks[3]:padding(ui.Padding.x(1))),
--- 	}
--- end

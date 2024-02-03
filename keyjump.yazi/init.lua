@@ -4,17 +4,17 @@ local args = { ... }
 
 local t_signalKey_candy = {
 {on={'p'}}, {on={'b'}},
-{on={'e'}}, {on={'t'}}, 
+{on={'e'}}, {on={'t'}},
 {on={'a'}}, {on={'o'}},
 {on={'i'}}, {on={'n'}},
 {on={'s'}}, {on={'r'}},
-{on={'h'}}, {on={'l'}}, 
-{on={'d'}}, {on={'c'}}, 
-{on={'u'}}, {on={'m'}}, 
-{on={'f'}}, {on={'g'}}, 
-{on={'w'}}, {on={'v'}}, 
+{on={'h'}}, {on={'l'}},
+{on={'d'}}, {on={'c'}},
+{on={'u'}}, {on={'m'}},
+{on={'f'}}, {on={'g'}},
+{on={'w'}}, {on={'v'}},
 {on={'k'}}, {on={'j'}},
-{on={'x'}}, {on={'z'}}, 
+{on={'x'}}, {on={'z'}},
 {on={'y'}}, {on={'q'}}
 }
 
@@ -30,11 +30,11 @@ local t_doubleKey_candy = {
     {on = {"w","u"}}, {on = {"w","i"}}, {on={"w","o"}}, {on={"w","h"}}, {on={"w","j"}}, {on={"w","k"}}, {on={"w","l"}}, {on={"w","n"}},
 }
 
-T_signalKey = {'p','b','e', 't', 'a', 'o', 'i', 'n', 's', 'r', 'h',
+local t_signalKey = {'p','b','e', 't', 'a', 'o', 'i', 'n', 's', 'r', 'h',
 'l', 'd', 'c', 'u', 'm', 'f', 'g', 'w', 'v', 'k', 'j',
 'x','z', 'y','q'}
 
-T_doubleKey = {
+local t_doubleKey = {
     "au", "ai", "ao", "ah", "aj", "ak", "al", "an",
     "su", "si", "so", "sh", "sj", "sk", "sl", "sn",
     "du", "di", "do", "dh", "dj", "dk", "dl", "dn",
@@ -46,9 +46,8 @@ T_doubleKey = {
     "wu", "wi", "wo", "wh", "wj", "wk", "wl", "wn",
 }
 
--- global
-B_isJumpMode = false
-B_isDoubleKey = false
+local b_isJumpMode = false
+local b_isDoubleKey = false
 
 -- util function
 local function getFilePosition(file)
@@ -71,23 +70,23 @@ end
 local function setKeyMode()
 	local i_item_num = getCurrenAreaItemNum()
 	if i_item_num > 26 then
-		B_isDoubleKey = true
+		b_isDoubleKey = true
 	else
-		B_isDoubleKey = false
+		b_isDoubleKey = false
 	end
 end
 
 -- overwirte system function
 if Folder then
 	function Folder:icon(file)
-		if B_isJumpMode then
+		if b_isJumpMode then
 			local position = getFilePosition(file)
 			if position == 0 then
 				return ui.Span(" " .. file:icon().text .. " ")
-			elseif B_isDoubleKey then
-				return ui.Span(" " .. file:icon().text .. " "..T_doubleKey[position].. " ")
+			elseif b_isDoubleKey then
+				return ui.Span(" " .. file:icon().text .. " "..t_doubleKey[position].. " ")
 			else
-				return ui.Span(" " .. file:icon().text .. " "..T_signalKey[position].. " ")
+				return ui.Span(" " .. file:icon().text .. " "..t_signalKey[position].. " ")
 			end
 		else
 			return ui.Span(" " .. file:icon().text .. " ")
@@ -98,7 +97,7 @@ end
 if Status then
 	function Status:mode()
 		local mode = "UNSET"
-		if B_isJumpMode then
+		if b_isJumpMode then
 			mode = "KJ-" .. tostring(cx.active.mode):upper()
 		else
 			mode = tostring(cx.active.mode):upper() -- accessing the current context through cx
@@ -120,10 +119,10 @@ function M:entry()
 
 	if args[1] ~= nil then
 		if args[1] == "init" then
-    		B_isJumpMode = true
+    		b_isJumpMode = true
     		setKeyMode()
 			ya.render()
-			ya.manager_emit("plugin", { "keyjump", args = tostring("getinput").." "..tostring(B_isDoubleKey) })
+			ya.manager_emit("plugin", { "keyjump", args = tostring("getinput").." "..tostring(b_isDoubleKey) })
 		elseif args[1] == "getinput" then
 			local target_candy
 			if args[2] == "false" then
@@ -140,7 +139,7 @@ function M:entry()
 			end			
 		else
 			local cursor_position = getCursorPosition()
-			B_isJumpMode = false
+			b_isJumpMode = false
 			ya.render()
 			ya.manager_emit("arrow", { "-"..tostring(cursor_position) })
 			ya.manager_emit("arrow", { args[1] })

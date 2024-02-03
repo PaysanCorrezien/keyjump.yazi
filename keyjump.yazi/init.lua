@@ -117,41 +117,36 @@ if Status then
 end
 
 function M:entry()
-
-	if args[1] ~= nil then
-		if args[1] == "sync-init" then --sync context
-    		b_isJumpMode = true
-    		setKeyMode()
-			ya.render()
-			ya.manager_emit("plugin", { "keyjump", args = tostring("async-getinput").." "..tostring(b_isDoubleKey).." "..tostring(i_item_num) })
-		elseif args[1] == "async-getinput" then --async context
-			local target_candy
-			if args[2] == "false" then
-				target_candy = {table.unpack(t_signalKey_candy, 1, args[3])}
-			else
-				target_candy = {table.unpack(t_doubleKey_candy, 1, args[3])}
-			end
-			local key = ya.which {
-				cands = target_candy,
-				silent = true, 
-			}
-			if key ~= nil then
-				ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring(key) })
-			else
-				ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring("sync-nilkey") })
-			end	
-		elseif args[1] == "sync-nilkey" then --sync context
-			b_isJumpMode = false
-			ya.render()			
-		else --sync context
-			local cursor_position = getCursorPosition()
-			b_isJumpMode = false
-			ya.render()
-			ya.manager_emit("arrow", { "-"..tostring(cursor_position) })
-			ya.manager_emit("arrow", { args[1] })
+	if args[1] == "sync-init" then --sync context
+    	b_isJumpMode = true
+    	setKeyMode()
+		ya.render()
+		ya.manager_emit("plugin", { "keyjump", args = tostring("async-getinput").." "..tostring(b_isDoubleKey).." "..tostring(i_item_num) })
+	elseif args[1] == "async-getinput" then --async context
+		local target_candy
+		if args[2] == "false" then
+			target_candy = {table.unpack(t_signalKey_candy, 1, args[3])}
+		else
+			target_candy = {table.unpack(t_doubleKey_candy, 1, args[3])}
 		end
-	else --async context
-		ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring("sync-init") })
+		local key = ya.which {
+			cands = target_candy,
+			silent = true, 
+		}
+		if key ~= nil then
+			ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring(key) })
+		else
+			ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring("sync-nilkey") })
+		end	
+	elseif args[1] == "sync-nilkey" then --sync context
+		b_isJumpMode = false
+		ya.render()			
+	else --sync context
+		local cursor_position = getCursorPosition()
+		b_isJumpMode = false
+		ya.render()
+		ya.manager_emit("arrow", { "-"..tostring(cursor_position) })
+		ya.manager_emit("arrow", { args[1] })
 	end
 end
 

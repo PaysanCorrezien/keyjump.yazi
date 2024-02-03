@@ -26,8 +26,7 @@ for example set `i` to toggle keyjump mode
 
 keymap = [
 
-	{ on = [ "i"], exec = "plugin keyjump", desc = "toggle lable jump" },
-]
+	{ on = [ "i"], exec = "plugin keyjump --sync --args='sync-init'", desc = "keyjump" },]
 ```
 
 when you see some character(singal character or double character) in left of the entry.

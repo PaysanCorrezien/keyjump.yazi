@@ -11,7 +11,7 @@ https://github.com/DreamMaoMao/keyjump/assets/30348075/bef60fdf-fe29-4706-9cd0-9
 ```
 git clone https://github.com/DreamMaoMao/keyjump.git
 cd keyjump
-cp ./*  -r ~/.config/yazi/
+cp keyjump.yazi -r ~/.config/yazi/plugins
 ```
 
 # usage

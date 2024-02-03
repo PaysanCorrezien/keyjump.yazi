@@ -12,9 +12,8 @@ https://github.com/DreamMaoMao/keyjump/assets/30348075/6ba722ce-8b55-4c80-ac81-b
 
 # install
 ```
-git clone https://github.com/DreamMaoMao/keyjump.git
-cd keyjump
-cp keyjump.yazi -r ~/.config/yazi/plugins
+git clone https://github.com/DreamMaoMao/keyjump.yazi.git ~/.config/yazi/plugins/keyjump.yazi
+
 ```
 
 # usage

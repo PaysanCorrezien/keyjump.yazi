@@ -79,7 +79,7 @@ local function isWinOS()
 	end
 	
 	local result = string.match(home_path,":")
-	if result == nil then
+	if result ~= nil then
 		return true
 	end
 
@@ -105,6 +105,7 @@ local function getFileNumFromPath(path)
 	if B_isWinOS then
 		cmd = "dir "
 	end
+
     local a = io.popen(cmd..path);
     local f = {};
     for l in a:lines() do

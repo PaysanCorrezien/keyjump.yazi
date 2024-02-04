@@ -80,6 +80,21 @@ local function setKeyMode()
 	end
 end
 
+
+local function getFileFromPosition(pos)
+	return (Folder:by_kind(Folder.CURRENT).window)[pos]
+end
+
+local function getFileNumFromPath(path)
+    local a = io.popen("ls "..path);
+    local f = {};
+    for l in a:lines() do
+        table.insert(f,l)
+    end
+    a:close()
+    return #f
+end
+
 -- overwirte system function
 if Folder then
 	function Folder:icon(file)
@@ -154,17 +169,22 @@ end
 
 local function keepAction()
 	local cursor_position = getCursorPosition()
-	ya.manager_emit("arrow", {tostring(tonumber(args[1]) - cursor_position ) })	 --TODO: need to block
-
-	local cursor_hit_item = cx.active.current.hovered
-	if cursor_hit_item and cursor_hit_item.cha.is_dir then
+	ya.manager_emit("arrow", {tostring(tonumber(args[1]) - cursor_position ) })	
+	local target_file = getFileFromPosition(tonumber(args[1])+1)
+	if target_file and target_file.cha.is_dir then
 		ya.manager_emit("enter",{})	 -- TODO: need to block
 
-		setKeyMode()
+		local I_item_num = getFileNumFromPath(tostring(target_file.url))
 		if I_item_num == 0 then
 			B_isJumpMode = false
 			ya.render()	
 			return		
+		end
+
+		if I_item_num > 26 then
+			B_isDoubleKey = true
+		else
+			B_isDoubleKey = false
 		end
 
 		ya.manager_emit("plugin", { "keyjump", args = tostring("async-getinput").." "..tostring(B_isDoubleKey).." "..tostring(I_item_num) })

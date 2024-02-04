@@ -2,6 +2,15 @@
 
 a yazi plugin which like flash.nvim in neovim,allow use key char to Precise selection
 
+### keep mode
+
+
+https://github.com/DreamMaoMao/keyjump.yazi/assets/30348075/dd998a34-49b0-481d-b032-d9849a89ba48
+
+
+
+
+### noce mode
 https://github.com/DreamMaoMao/keyjump/assets/30348075/6ba722ce-8b55-4c80-ac81-b6b7ade74491
 
 # install

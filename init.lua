@@ -52,16 +52,6 @@ local DOUBLE_CANDS = {
 	{ on = { "w", "k" } }, { on = { "w", "l" } }, { on = { "w", "n" } },
 }
 
-
-if args[1] == "sync-init" then
-	IsInJumpMode = false
-	UseDoubleKey = false
-	IsInWinOS = false
-	KeyJumpType = ""
-	ItemNumInCurrentWindow = 0
-end
-
--- util function
 local function getFilePosition(file)
 	for i, f in ipairs(Folder:by_kind(Folder.CURRENT).window) do
 		if f == file then
@@ -122,52 +112,15 @@ local function getFileNumFromPath(path)
     return #f
 end
 
--- overwirte system function
-if Folder then
-	function Folder:icon(file)
-		if IsInJumpMode then
-			local position = getFilePosition(file)
-			if position == 0 then
-				return ui.Span(" " .. file:icon().text .. " ")
-			elseif UseDoubleKey then
-				return ui.Span(" " .. file:icon().text .. " "..DOUBLE_KEYS[position].. " ")
-			else
-				return ui.Span(" " .. file:icon().text .. " "..SINGLE_KEYS[position].. " ")
-			end
-		else
-			return ui.Span(" " .. file:icon().text .. " ")
-		end
-	end
-end
-
-if Status then
-	function Status:mode()
-		local mode = "UNSET"
-		if IsInJumpMode and KeyJumpType == "normal" then
-			mode = "KJN-" .. tostring(cx.active.mode):upper()
-		elseif IsInJumpMode and KeyJumpType == "keep" then
-				mode = "KJK-" .. tostring(cx.active.mode):upper()
-		else
-			mode = tostring(cx.active.mode):upper() -- accessing the current context through cx
-		end
-
-		if mode == "UNSET" then
-			mode = "UN-SET"
-		end
-
-		local style = self.style()
-		return ui.Line {
-			ui.Span(THEME.status.separator_open):fg(style.bg),
-			ui.Span(" " .. mode .. " "):style(style),
-		}
-	end
-end
-
 local function init()
+	-- init global var
+	UseDoubleKey = false
+	ItemNumInCurrentWindow = 0
 	IsInJumpMode = true
 	KeyJumpType = args[2]
-	setKeyMode()
 	IsInWinOS =	isWinOS()
+
+	setKeyMode()
 	ya.render()
 	ya.manager_emit("plugin", { "keyjump", args = tostring("async-getinput").." "..tostring(UseDoubleKey).." "..tostring(ItemNumInCurrentWindow) })
 end
@@ -246,5 +199,47 @@ function M:entry()
 		end
 	end
 end
+
+-- overwirte system function
+if Folder then
+	function Folder:icon(file)
+		if IsInJumpMode then
+			local position = getFilePosition(file)
+			if position == 0 then
+				return ui.Span(" " .. file:icon().text .. " ")
+			elseif UseDoubleKey then
+				return ui.Span(" " .. file:icon().text .. " "..DOUBLE_KEYS[position].. " ")
+			else
+				return ui.Span(" " .. file:icon().text .. " "..SINGLE_KEYS[position].. " ")
+			end
+		else
+			return ui.Span(" " .. file:icon().text .. " ")
+		end
+	end
+end
+
+if Status then
+	function Status:mode()
+		local mode = "UNSET"
+		if IsInJumpMode and KeyJumpType == "normal" then
+			mode = "KJN-" .. tostring(cx.active.mode):upper()
+		elseif IsInJumpMode and KeyJumpType == "keep" then
+				mode = "KJK-" .. tostring(cx.active.mode):upper()
+		else
+			mode = tostring(cx.active.mode):upper() -- accessing the current context through cx
+		end
+
+		if mode == "UNSET" then
+			mode = "UN-SET"
+		end
+
+		local style = self.style()
+		return ui.Line {
+			ui.Span(THEME.status.separator_open):fg(style.bg),
+			ui.Span(" " .. mode .. " "):style(style),
+		}
+	end
+end
+
 
 return M

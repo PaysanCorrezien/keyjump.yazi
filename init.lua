@@ -46,9 +46,12 @@ local t_doubleKey = {
     "wu", "wi", "wo", "wh", "wj", "wk", "wl", "wn",
 }
 
-local b_isJumpMode = false
-local b_isDoubleKey = false
-local i_item_num = 0
+if args[1] == "sync-init" then
+	B_isJumpMode = false
+	B_isDoubleKey = false
+	S_modeType = ""
+	I_item_num = 0
+end
 
 -- util function
 local function getFilePosition(file)
@@ -69,22 +72,22 @@ local function getCursorPosition()
 end
 
 local function setKeyMode()
-	i_item_num = getCurrenAreaItemNum()
-	if i_item_num > 26 then
-		b_isDoubleKey = true
+	I_item_num = getCurrenAreaItemNum()
+	if I_item_num > 26 then
+		B_isDoubleKey = true
 	else
-		b_isDoubleKey = false
+		B_isDoubleKey = false
 	end
 end
 
 -- overwirte system function
 if Folder then
 	function Folder:icon(file)
-		if b_isJumpMode then
+		if B_isJumpMode then
 			local position = getFilePosition(file)
 			if position == 0 then
 				return ui.Span(" " .. file:icon().text .. " ")
-			elseif b_isDoubleKey then
+			elseif B_isDoubleKey then
 				return ui.Span(" " .. file:icon().text .. " "..t_doubleKey[position].. " ")
 			else
 				return ui.Span(" " .. file:icon().text .. " "..t_signalKey[position].. " ")
@@ -98,7 +101,7 @@ end
 if Status then
 	function Status:mode()
 		local mode = "UNSET"
-		if b_isJumpMode then
+		if B_isJumpMode then
 			mode = "KJ-" .. tostring(cx.active.mode):upper()
 		else
 			mode = tostring(cx.active.mode):upper() -- accessing the current context through cx
@@ -116,36 +119,81 @@ if Status then
 	end
 end
 
+local function init()
+	B_isJumpMode = true
+	S_modeType = args[2]
+	setKeyMode()
+	ya.render()
+	ya.manager_emit("plugin", { "keyjump", args = tostring("async-getinput").." "..tostring(B_isDoubleKey).." "..tostring(I_item_num) })
+end
+
+local function getinput()
+	local target_candy
+	if args[2] == "false" then
+		target_candy = {table.unpack(t_signalKey_candy, 1, args[3])}
+	else
+		target_candy = {table.unpack(t_doubleKey_candy, 1, args[3])}
+	end
+	local key = ya.which {
+		cands = target_candy,
+		silent = true, 
+	}
+	if key ~= nil then
+		ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring(key - 1) })
+	else
+		ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring("sync-nilkey") })
+	end		
+end
+
+local function normalAction()
+	local cursor_position = getCursorPosition()
+	B_isJumpMode = false
+	ya.render()
+	ya.manager_emit("arrow", {tostring(tonumber(args[1]) - cursor_position ) })	
+end
+
+local function keepAction()
+	local cursor_position = getCursorPosition()
+	ya.manager_emit("arrow", {tostring(tonumber(args[1]) - cursor_position ) })	 --TODO: need to block
+
+	local cursor_hit_item = cx.active.current.hovered
+	if cursor_hit_item and cursor_hit_item.cha.is_dir then
+		ya.manager_emit("enter",{})	 -- TODO: need to block
+
+		setKeyMode()
+		if I_item_num == 0 then
+			B_isJumpMode = false
+			ya.render()	
+			return		
+		end
+
+		ya.manager_emit("plugin", { "keyjump", args = tostring("async-getinput").." "..tostring(B_isDoubleKey).." "..tostring(I_item_num) })
+	else
+		B_isJumpMode = false
+		ya.render()		
+	end
+end
+
+local function nilkeyAction()
+	B_isJumpMode = false
+	ya.render()			
+end
+
 function M:entry()
 	if args[1] == "sync-init" then --sync context
-    	b_isJumpMode = true
-    	setKeyMode()
-		ya.render()
-		ya.manager_emit("plugin", { "keyjump", args = tostring("async-getinput").." "..tostring(b_isDoubleKey).." "..tostring(i_item_num) })
+		init()
 	elseif args[1] == "async-getinput" then --async context
-		local target_candy
-		if args[2] == "false" then
-			target_candy = {table.unpack(t_signalKey_candy, 1, args[3])}
-		else
-			target_candy = {table.unpack(t_doubleKey_candy, 1, args[3])}
-		end
-		local key = ya.which {
-			cands = target_candy,
-			silent = true, 
-		}
-		if key ~= nil then
-			ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring(key - 1) })
-		else
-			ya.manager_emit("plugin", { "keyjump", sync = "", args = tostring("sync-nilkey") })
-		end	
+		getinput()
 	elseif args[1] == "sync-nilkey" then --sync context
-		b_isJumpMode = false
-		ya.render()			
+		nilkeyAction()
 	else --sync context
-		local cursor_position = getCursorPosition()
-		b_isJumpMode = false
-		ya.render()
-		ya.manager_emit("arrow", {tostring(tonumber(args[1]) - cursor_position ) })
+		if S_modeType == "normal" then
+			normalAction()
+		elseif S_modeType == "keep" then
+			keepAction()
+		else
+			ya.err("unknow action")
+		end
 	end
 end
 

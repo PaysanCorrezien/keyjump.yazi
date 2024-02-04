@@ -10,7 +10,7 @@ https://github.com/DreamMaoMao/keyjump.yazi/assets/30348075/dd998a34-49b0-481d-b
 
 
 
-### noce mode
+### once mode
 https://github.com/DreamMaoMao/keyjump/assets/30348075/6ba722ce-8b55-4c80-ac81-b6b7ade74491
 
 # install

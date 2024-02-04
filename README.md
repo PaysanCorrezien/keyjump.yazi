@@ -45,7 +45,7 @@ keymap = [
 	{ on = [ "i"], exec = "plugin keyjump --sync --args='sync-init keep'", desc = "keyjump" },
 
 	# normal mode, when select a item, it will auto leave keyjump mode
-	{ on = [ "i"], exec = "plugin keyjump --sync --args='sync-init normal'", desc = "keyjump" },
+	{ on = [ "z"], exec = "plugin keyjump --sync --args='sync-init normal'", desc = "keyjump" },
 ] 
 ```
 

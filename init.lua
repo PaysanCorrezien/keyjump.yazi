@@ -49,6 +49,7 @@ local t_doubleKey = {
 if args[1] == "sync-init" then
 	B_isJumpMode = false
 	B_isDoubleKey = false
+	B_isWinOS = false
 	S_modeType = ""
 	I_item_num = 0
 end
@@ -71,6 +72,20 @@ local function getCursorPosition()
     return Folder:by_kind(Folder.CURRENT).cursor - Folder:by_kind(Folder.CURRENT).offset
 end
 
+local function isWinOS()
+	local home_path = os.getenv("HOME")
+	if home_path == nil then
+		return true
+	end
+	
+	local result = string.match(home_path,":")
+	if result == nil then
+		return true
+	end
+
+	return false
+end
+
 local function setKeyMode()
 	I_item_num = getCurrenAreaItemNum()
 	if I_item_num > 26 then
@@ -86,7 +101,11 @@ local function getFileFromPosition(pos)
 end
 
 local function getFileNumFromPath(path)
-    local a = io.popen("ls "..path);
+	local cmd = "ls "
+	if B_isWinOS then
+		cmd = "dir "
+	end
+    local a = io.popen(cmd..path);
     local f = {};
     for l in a:lines() do
         table.insert(f,l)
@@ -138,6 +157,7 @@ local function init()
 	B_isJumpMode = true
 	S_modeType = args[2]
 	setKeyMode()
+	B_isWinOS =	isWinOS()
 	ya.render()
 	ya.manager_emit("plugin", { "keyjump", args = tostring("async-getinput").." "..tostring(B_isDoubleKey).." "..tostring(I_item_num) })
 end
@@ -218,4 +238,3 @@ function M:entry()
 end
 
 return M
-

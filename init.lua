@@ -1,5 +1,3 @@
-local args = { ... }
-
 -- stylua: ignore
 local SINGLE_KEYS = {
 	"p", "b", "e", "t", "a", "o", "i", "n", "s", "r", "h", "l", "d", "c",
@@ -51,7 +49,7 @@ local DOUBLE_CANDS = {
 	{ on = { "w", "k" } }, { on = { "w", "l" } }, { on = { "w", "n" } },
 }
 
--- TODO: refactor this
+-- FIXME: refactor this to avoid the loop
 local function rel_position(file)
 	for i, f in ipairs(Folder:by_kind(Folder.CURRENT).window) do
 		if f == file then
@@ -60,19 +58,38 @@ local function rel_position(file)
 	end
 end
 
-local function toggle_ui(state)
+-- FIXME: find a better way to do this
+local function count_files(path, max)
+	local shell = { "ls", path }
+	if ya.target_family() == "windows" then
+		shell = { "dir", path }
+	end
+
+	local i, handle = 0, io.popen(ya.shell_join(shell))
+	for _ in handle:lines() do
+		i = i + 1
+		if i == max then
+			break
+		end
+	end
+
+	handle:close()
+	return i
+end
+
+local function toggle_ui(st)
 	ya.render()
-	if state.icon or state.mode then
-		Folder.icon, Status.mode, state.icon, state.mode = state.icon, state.mode, nil, nil
+	if st.icon or st.mode then
+		Folder.icon, Status.mode, st.icon, st.mode = st.icon, st.mode, nil, nil
 		return
 	end
 
-	state.icon, state.mode = Folder.icon, Status.mode
+	st.icon, st.mode = Folder.icon, Status.mode
 	Folder.icon = function(self, file)
 		local pos = rel_position(file)
 		if not pos then
-			return state.icon(self, file)
-		elseif state.num > 26 then
+			return st.icon(self, file)
+		elseif st.num > #SINGLE_KEYS then
 			return ui.Span(DOUBLE_KEYS[pos] .. " " .. file:icon().text .. " ")
 		else
 			return ui.Span(SINGLE_KEYS[pos] .. " " .. file:icon().text .. " ")
@@ -90,30 +107,49 @@ end
 local function next(sync, args) ya.manager_emit("plugin", { "keyjump", sync = sync, args = table.concat(args, " ") }) end
 
 return {
-	entry = function()
+	entry = function(_, args)
 		local action = args[1]
-		if not action then
+
+		-- Step 1: Patch the UI with our candidates
+		if not action or action == "keep" then
+			state.keep = action == "keep"
 			state.num = #Folder:by_kind(Folder.CURRENT).window
-			toggle_ui(state)
-			return next(false, { "prompt", state.num })
+			if state.num <= #SINGLE_KEYS then -- Maybe the folder has not been loaded yet
+				state.num = count_files(tostring(cx.active.current.cwd), #SINGLE_KEYS + 1)
+			end
+
+			toggle_ui(state())
+			return next(false, { "_read", state.num })
 		end
 
-		if action == "prompt" then
+		-- Step 2: Waiting to read the candidate from the user
+		if action == "_read" then
 			local cands, num = nil, tonumber(args[2])
-			if num > 26 then
+			if num > #SINGLE_KEYS then
 				cands = { table.unpack(DOUBLE_CANDS, 1, num) }
 			else
 				cands = { table.unpack(SIGNAL_CANDS, 1, num) }
 			end
 
 			local key = ya.which { cands = cands, silent = true }
-			return next(true, key and { "apply", key } or { "reset" })
+			return next(true, key and { "_apply", key } or { "_reset" })
 		end
 
-		toggle_ui(state)
-		if action == "apply" then
-			local pos = Folder:by_kind(Folder.CURRENT).cursor - Folder:by_kind(Folder.CURRENT).offset
-			ya.manager_emit("arrow", { tostring(args[2] - pos - 1) })
+		-- Step 3: Restore the UI we patched in step 1, once we read the candidate
+		toggle_ui(state())
+		if action ~= "_apply" then
+			return
+		end
+
+		-- Step 4: Apply the candidate by moving the cursor of the file list
+		local folder = Folder:by_kind(Folder.CURRENT)
+		local cand = tonumber(args[2])
+		ya.manager_emit("arrow", { cand - 1 + folder.offset - folder.cursor })
+
+		-- Step 5: If keep mode is enabled, return to step 1
+		if state.keep and folder.window[cand].cha.is_dir then
+			ya.manager_emit("enter", {})
+			next(true, { "keep" })
 		end
 	end,
 }

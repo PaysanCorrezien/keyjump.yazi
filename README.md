@@ -42,10 +42,10 @@ keymap = [
 
 	# keep mode, when select a dir, it will auto enter and keep in keyjump mode.
 	# when select a file or press <ESC> or select no match, it will leave keyjump mode.
-	{ on = [ "i"], exec = "plugin keyjump --sync --args='sync-init keep'", desc = "keyjump" },
+	{ on = [ "i"], exec = "plugin keyjump --sync --args='keep'", desc = "keyjump" },
 
 	# normal mode, when select a item, it will auto leave keyjump mode
-	{ on = [ "z"], exec = "plugin keyjump --sync --args='sync-init normal'", desc = "keyjump" },
+	{ on = [ "z"], exec = "plugin keyjump --sync --args=''", desc = "keyjump" },
 ] 
 ```
 

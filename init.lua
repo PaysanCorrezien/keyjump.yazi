@@ -62,10 +62,15 @@ end
 local function count_files(path, max)
 	local shell = { "ls", path }
 	if ya.target_family() == "windows" then
-		shell = { "dir", path }
+		shell = { "dir", "/b", path }
 	end
 
-	local i, handle = 0, io.popen(ya.shell_join(shell))
+	-- local i, handle = 0, io.popen(ya.shell_join(shell))
+	local command = ya.shell_join(shell)
+	--BUG: shell_join add single quotes to the path, which is not supported in windows cmd
+	command = command:gsub("'", '"')
+
+	local i, handle = 0, io.popen(command)
 	for _ in handle:lines() do
 		i = i + 1
 		if i == max then
